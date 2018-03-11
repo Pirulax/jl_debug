@@ -56,6 +56,18 @@ local textRenderTarget
 
 local bDebugEnabled = false
 
+addEventHandler("onClientDebugMessage", root,
+    function(msg, lvl, file, line, r, g, b)
+        debug.addMessage({
+            msg = msg, 
+            lvl = lvl,
+            file = file,
+            line = line,
+            color = {r, g, b},   
+        }, 2)
+    end
+)
+
 addEvent("jlDebug:serverDebugMsg", true)
 addEventHandler("jlDebug:serverDebugMsg", localPlayer, 
     function (aDebugMessages)
