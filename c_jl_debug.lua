@@ -1,4 +1,10 @@
 local sx, sy = guiGetScreenSize()
+local _dxText = dxDrawText
+local dxDrawText = function(text, x, y, w, h, ...) dxDrawText(text, x, y, x+w, y+h, ...) end
+local dxDrawShadowedText = function(text, x, y, ...)
+    dxDrawText(text, x-2, y+2, ...)
+    dxDrawText(text, x, y, ...)
+end
 
 local fDebug = {}
 local sSettings = {
@@ -9,7 +15,7 @@ local sSettings = {
     dup = "dupCountx",
     lvl = {
         [0] = "Custom",
-        [1] = "Erorr",
+        [1] = "Error",
         [2] = "Warning",
         [3] = "Info"
     },
@@ -18,7 +24,7 @@ local sSettings = {
         [2] = "Client"
     },
 }
-
+local bTextShadow = true
 --> this is set when the resource starts.
 local uFont
 
@@ -41,7 +47,7 @@ local iResize = {}
 local sMsgDup = {}
 local sDbgMsgs = {}
 
-local iMaxRow = 5
+local iMaxRows = 5
 local iCurrentRow = 0
 local textRenderTarget
 
@@ -68,7 +74,7 @@ debug.addMessage = function (aDbgMsgData, iSide)
     })
     sMsgDup[k].count = sMsgDup[k].count+1
 
-    sDbgMsgs[sMsgDup[k].line].text = debug.parseMessage(aDbgMsgData, iSide, sMsgDup[k].count)
+    sDbgMsgs[sMsgDup[k].line] = debug.parseMessage(aDbgMsgData, iSide, sMsgDup[k].count)
 end
 
 debug.parseMessage = function (aDbgMsgData, iSide, iDupCount)
@@ -83,8 +89,19 @@ debug.parseMessage = function (aDbgMsgData, iSide, iDupCount)
     return str
 end 
 
-debug.render = function ()
-    dxDrawImage(iSettings.x, iSettings.y, iSettings.w, iSettings.h, textRenderTarget)
+do
+    local i = 0
+    local sText = 0
+    local addY = 0
+    debug.render = function ()
+        i = iCurrentRow
+        sText = 0
+        addY = 0
+        while ((i or iCurrentRow+iMaxRows+1)<iCurrentRow+iMaxRows) do
+            i, sText = next(sDbgMsgs, i)
+            dxDrawShadowedText(iSettings.x, iSettings.y, _, _, iColorWhite, 1, uFont, "top", "left", false, false, true)
+        end
+    end
 end
 
 addEventHandler("onClientElementDataChange", localPlayer,
@@ -111,6 +128,8 @@ addEventHandler("onClientResourceStart", resourceRoot,
                     end
                 end
             end
+            tbl = tbl.vars
+            bTextShadow = tbl.bTextShadow
         end
         uFont = dxCreateFont((fileExists(sSettings.fontPath) and sSettings.fontPath) or ("file/fonts/roboto.ttf") , iSettings.fontSize or 10, false) or "default"
     end)
@@ -120,7 +139,7 @@ addEventHandler("onClientResourceStop", resourceRoot,
         --> Save the settings
         uHandle = uHandle or fileCreate(sPath)
         fileSetPos(uHandle, 0)
-        fileWrite(uHandle, toJSON({sSettings = sSettings, iSettings = iSettings}))
+        fileWrite(uHandle, toJSON({sSettings = sSettings, iSettings = iSettings, vars = {bTextShadow = bTextShadow}}))
         fileFlush(uHandle)
         fileClose(uHandle)
     end)
