@@ -6,6 +6,8 @@ local dxDrawShadowedText = function(text, x, y, ...)
     dxDrawText(text, x, y, ...)
 end
 
+local iColorWhite = tocolor(255, 255, 255)
+
 local fDebug = {}
 local sSettings = {
     unknownFile = "Unknown",
@@ -27,6 +29,7 @@ local sSettings = {
 local bTextShadow = true
 --> this is set when the resource starts.
 local uFont
+local iFontHeight
 
 local iSettings = {
     w = 500,
@@ -51,6 +54,7 @@ local iMaxRows = 5
 local iCurrentRow = 0
 local textRenderTarget
 
+local bDebugEnabled = false
 
 addEvent("jlDebug:serverDebugMsg", true)
 addEventHandler("jlDebug:serverDebugMsg", localPlayer, 
@@ -89,25 +93,34 @@ debug.parseMessage = function (aDbgMsgData, iSide, iDupCount)
     return str
 end 
 
+deubg.render = function()
+    dxDrawImage(iSettings.x, iSettings.y, iSettings.w, iSettings.h, textRenderTarget)
+end
+
 do
     local i = 0
     local sText = 0
     local addY = 0
-    debug.render = function ()
+    debug.reloadRTarget = function ()
+        dxSetRenderTarget(textRenderTarget, true)
         i = iCurrentRow
         sText = 0
-        addY = 0
+        addY = 2
         while ((i or iCurrentRow+iMaxRows+1)<iCurrentRow+iMaxRows) do
             i, sText = next(sDbgMsgs, i)
-            dxDrawShadowedText(iSettings.x, iSettings.y, _, _, iColorWhite, 1, uFont, "top", "left", false, false, true)
+            dxDrawShadowedText(sText, 0, addY, 0, 0, iColorWhite, 1, uFont, "top", "left", false, false, true)
+            addY = addY+iFontHeight+2
+            for _ in string.gmatch(sText, "\n") do addY = addY+iFontHeight+2 end
         end
+        dxSetRenderTarget()
     end
 end
 
 addEventHandler("onClientElementDataChange", localPlayer,
     function (sDataName)
         if (sDataName=="debug:state") then
-            ((getElementData(localPlayer, sDataName) and addEventHandler) or (removeEventHandler))("onClientRender", root, debug.render)
+            bDebugEnabled = getElementData(localPlayer, sDataName)
+            ((bDebugEnabled and addEventHandler) or (removeEventHandler))("onClientRender", root, debug.render)
         end
     end)
 
@@ -132,6 +145,8 @@ addEventHandler("onClientResourceStart", resourceRoot,
             bTextShadow = tbl.bTextShadow
         end
         uFont = dxCreateFont((fileExists(sSettings.fontPath) and sSettings.fontPath) or ("file/fonts/roboto.ttf") , iSettings.fontSize or 10, false) or "default"
+        iFontHeight = dxGetFontHeight(1, uFont)
+        textRenderTarget = dxCreateRenderTarget(iSettings.w, iSettings.h, true)
     end)
 
 addEventHandler("onClientResourceStop", resourceRoot,
@@ -143,3 +158,22 @@ addEventHandler("onClientResourceStop", resourceRoot,
         fileFlush(uHandle)
         fileClose(uHandle)
     end)
+
+
+bindKey("mouse_wheel_down", "down", 
+    function() 
+        if (bDebugEnabled) then
+            if (iCurrentRow<#sDbgMsgs-iMaxRows) then
+                iCurrentRow = iCurrentRow+1
+            end
+        end
+	end)
+
+bindKey("mouse_wheel_up", "down", 
+    function() 
+        if (bDebugEnabled) then
+            if (iCurrentRow>0) then
+                iCurrentRow = iCurrentRow-1
+            end
+        end
+	end)
