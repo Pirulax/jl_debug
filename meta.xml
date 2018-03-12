@@ -1,9 +1,13 @@
 <meta>
     <script src="g_jl_debug.lua" type="shared" />
+
+    <script src="c_move_resize_jl_debug.lua" type="client" />
     <script src="c_jl_debug.lua" type="client" />
+    
     <script src="s_jl_debug.lua" type="server" />
 
     <file src="files/fonts/roboto.ttf" />
+    <file src="files/images/circle.dds" />
 
     <min_mta_version client="1.5.5" />
 </meta>
