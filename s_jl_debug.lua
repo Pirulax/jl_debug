@@ -29,7 +29,7 @@ addEventHandler("onDebugMessage", root,
 
 setTimer(
     function()
-        if (#aDebugMessagesToSend>1) then --> only if thers message to send
+        if (#aDebugMessagesToSend>0) then --> only if thers message to send
             for _, player in pairs(getElementsByType("player")) do
                 if (getElementData(player, "debug:state")) then
                     triggerClientEvent("jlDebug:serverDebugMsg", player, aDebugMessagesToSend)
