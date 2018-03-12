@@ -80,9 +80,10 @@ end
 
 debug.parseMessage = function (aDbgMsgData, iSide, iDupCount)
     aDbgMsgData.side = sSettings.side[iSide]
-    aDbgMsgData.dup = ((iDupCount>1 and sSettings.dip) or (sSettings.noDup)):gsub("dupCount", iDupCount)
+    aDbgMsgData.dup = ((iDupCount>1 and sSettings.dup) or (sSettings.noDup)):gsub("dupCount", iDupCount)
     aDbgMsgData.lvl = sSettings.lvl[aDbgMsgData.lvl]
 
+    print("dupmsg", aDbgMsgData.dup)
     local str = sSettings.msgPattern
     for k, v in pairs(aDbgMsgData) do
         str = str:gsub(k, v)
@@ -99,14 +100,12 @@ do
     local sText = 0
     local addY = 0
     debug.reloadRTarget = function ()
-        print(dxSetRenderTarget(textRenderTarget, true))
+        dxSetRenderTarget(textRenderTarget, true)
         dxDrawRectangle(0, 0, iSettings.w, iSettings.h, tocolor(0, 0, 0, 0))
         sText = sDbgMsgs[iCurrentRow]
         addY = 2
         for i = iCurrentRow, iCurrentRow+iMaxRows do       
             if not (sText) then print("breaked at", i, "Dbgmsgs size", #sDbgMsgs) break end
-            --dxDrawText(sText, -1, addY+1, 0, 0, tocolor(0, 0, 0, 255), 1, uFont, "left", "top", false, false, false, true)
-            --dxDrawText(sText, 0, addY, 0, 0, color, iColorWhite, 1, uFont, "left", "top", false, false, false, true)
             dxDrawShadowedText(sText, 0, addY, 0, 0, iColorWhite, 1, uFont, "left", "top", false, false, false, true)
             addY = addY+iFontHeight+2
             for _ in string.gmatch(sText, "\n") do addY = addY+iFontHeight+2 end     
@@ -219,7 +218,10 @@ addCommandHandler("cleard",
     function()
         sDbgMsgs = {}
         sMsgDup = {}
-        outputChatBox("#073b84[Info]:#FFFFFF Successfully cleared the chat.", 255, 255, 255, true)
+        --> just to clear the rTarget, and because thers no text at all, we dont need to refresh it.
+        dxSetRenderTarget(textRenderTarget, true);dxSetRenderTarget()       
+        iCurrentRow = 1
+        outputChatBox("#073b84[Info]:#FFFFFF Successfully cleared the debug.", 255, 255, 255, true)
     end)
 
 --> TODO REMOVE
