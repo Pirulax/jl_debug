@@ -1,10 +1,17 @@
+local sStates = {
+    [true] = "#056315on.",
+    [false] = "#db1106off."
+}
+
 addCommandHandler("togdebug", 
-    function(player, cmd)
-        if (hasObjectPermissionTo(player, "function.togDebug")) then
-            setElementData(player, "perm:togDebug", true)--> We need to set this, since we dont have 'hasObjectPermissionTo' on client-side
-            setElementData(player, "debug:state", not getElementData(player, "debug:state"))--> We just set the state of the debug to NOT the current state.
+    function(uPlayer)
+        if (hasObjectPermissionTo(uPlayer, "function.togDebug")) then
+            local bNewState = not getElementData(uPlayer, "debug:state")
+            setElementData(uPlayer, "perm:togDebug", true)--> We need to set this, since we dont have 'hasObjectPermissionTo' on client-side
+            setElementData(uPlayer, "debug:state", bNewState)--> We just set the state of the debug to NOT the current state.
+            outputChatBox("#073b84[Info]:#FFFFFF You turned the debug "..sStates[bNewState], uPlayer, 255, 255, 255, true)
         end
-    end
+    end, false, false
 )
 
 local aDebugMessagesToSend = {}
@@ -30,5 +37,5 @@ setTimer(
             end
             aDebugMessagesToSend = {}--> we clear the table.
         end
-    end, 1000--> 1 sec.
+    end, 1000, 0 --> 1 sec.
 )
