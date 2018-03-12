@@ -45,7 +45,7 @@ local iMove = {
     y = 0,
 }
 
-local bResize = false111111111111111111111111
+local bResize = false
 local iResize = {}
 
 local sMsgDup = {}
