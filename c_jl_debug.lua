@@ -87,8 +87,7 @@ debug.render = function()
         drawResizeAndMove() 
     else
         dxDrawImage(iSettings.x, iSettings.y, iSettings.w, iSettings.h, textRenderTarget)
-    end
-    dxDrawRectangle(iSettings.x, iSettings.y, iSettings.w, iSettings.h, tocolor(0, 0, 0, 80))
+    end  
 end
 
 do
@@ -96,7 +95,7 @@ do
     local addY = 0
     debug.reloadRTarget = function ()
         dxSetRenderTarget(textRenderTarget, true)
-        dxDrawRectangle(0, 0, iSettings.w, iSettings.h, tocolor(0, 0, 0, 0))
+        dxDrawRectangle(iSettings.x, iSettings.y, iSettings.w, iSettings.h, tocolor(0, 0, 0, 80))
         sText = sDbgMsgs[iCurrentRow]
         addY = 2
         for i = iCurrentRow, iCurrentRow+iMaxRows do       
