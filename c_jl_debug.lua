@@ -37,6 +37,7 @@ iSettings = {
     x = 50,
     y = sy-210,
 }
+local iDefaultiSettings = table.copy(iSettings)
 
 local sMsgDup = {}
 local sDbgMsgs = {}
@@ -74,7 +75,7 @@ debug.sParseMessage = function (aDbgMsgData, iSide, iDupCount)
     aDbgMsgData.side = sSettings.side[iSide]
     aDbgMsgData.dup = ((iDupCount>1 and sSettings.dup) or (sSettings.noDup)):gsub("dupCount", iDupCount)
     aDbgMsgData.lvl = sSettings.lvl[aDbgMsgData.lvl]
-    print(aDbgMsgData.lvl)
+
     local str = sSettings.msgPattern
     for k, v in pairs(aDbgMsgData) do
         str = str:gsub(k, v)
@@ -88,6 +89,7 @@ debug.render = function()
     else
         dxDrawImage(iSettings.x, iSettings.y, iSettings.w, iSettings.h, textRenderTarget)
     end  
+    dxDrawRectangle(iSettings.x, iSettings.y, iSettings.w, iSettings.h, tocolor(0, 0, 0, 80)) 
 end
 
 do
@@ -95,11 +97,11 @@ do
     local addY = 0
     debug.reloadRTarget = function ()
         dxSetRenderTarget(textRenderTarget, true)
-        dxDrawRectangle(iSettings.x, iSettings.y, iSettings.w, iSettings.h, tocolor(0, 0, 0, 80))
+        dxDrawRectangle(iSettings.x, iSettings.y, iSettings.w, iSettings.h, tocolor(0, 0, 0, 0))
         sText = sDbgMsgs[iCurrentRow]
         addY = 2
         for i = iCurrentRow, iCurrentRow+iMaxRows do       
-            if not (sText) then print("breaked at", i, "Dbgmsgs size", #sDbgMsgs) break end
+            if not (sText) then --[[print("breaked at", i, "Dbgmsgs size", #sDbgMsgs)]] break end
             if (bTextShadow) then dxDrawText(sText, 2+1.75, addY+1.75, 0, 0, tocolor(0, 0, 0, 255), 1, uFont, "left", "top", false, false, false, true) end
             dxDrawText(sText, 2, addY, 0, 0, iColorWhite, 1, uFont, "left", "top", false, false, false, true)
             addY = addY+iRowHeight
@@ -214,7 +216,6 @@ bindKey("mouse_wheel_down", "down",
         if (bDebugEnabled) then
             if (iCurrentRow<#sDbgMsgs-iMaxRows) then
                 iCurrentRow = iCurrentRow+1
-                print "down" 
             end
         end
     end
@@ -225,7 +226,6 @@ bindKey("mouse_wheel_up", "down",
         if (bDebugEnabled) then
             if (iCurrentRow>1) then
                 iCurrentRow = iCurrentRow-1
-                print "up"
             end
         end
     end
@@ -253,3 +253,9 @@ addCommandHandler("printtexttodebug",
     function(_, ...)
         outputDebugString(table.concat({...}, " "))
     end, false)
+
+addCommandHandler("resetdebug", 
+    function()
+        iSettings = iDefaultiSettings
+        outputChatBox("#073b84[Info]:#FFFFFF Successfully resetted the debug.", 255, 255, 255, true)
+    end)

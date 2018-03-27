@@ -1,8 +1,9 @@
 <meta>
     <script src="g_jl_debug.lua" type="shared" />
 
+    <script src="c_functions_jl_debug.lua" type="client" />
     <script src="c_move_resize_jl_debug.lua" type="client" />
-    <script src="c_jl_debug.lua" type="client" />
+    <script src="c_jl_debug.lua" type="client" />   
     
     <script src="s_jl_debug.lua" type="server" />
 
