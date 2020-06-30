@@ -115,7 +115,7 @@ end
 
 debug.tog = function(sDataName)
     bDebugEnabled = getElementData(localPlayer, "debug:state")
-    local func = ((bDebugEnabled and addEventHandler) or (removeEventHandler)) --> MTA is retarded, so i need to use this form..
+    local func = _G[bDebugEnabled and 'addEventHandler' or 'removeEventHandler']
     func("onClientRender", root, debug.render)
     func("onClientClick", root, clickHandler)
     loadSelf()    
